@@ -1,5 +1,6 @@
 using Ap1_P1_AngelGonzalez.Components;
 using Ap1_P1_AngelGonzalez.DAL;
+using Ap1_P1_AngelGonzalez.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,8 +11,10 @@ builder.Services.AddRazorComponents()
 
 //Obtenemos el ConStr para usarlo en el contexto
 var ConStr = builder.Configuration.GetConnectionString("ConStr");
-
+//Inyectando Contexto//
 builder.Services.AddDbContext<Contexto>(Options => Options.UseSqlite(ConStr));
+//Inyectando Servicios//
+builder.Services.AddScoped<ArticuloService>();
 
 builder.Services.AddBlazorBootstrap();
 
