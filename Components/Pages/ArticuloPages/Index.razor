@@ -1,0 +1,133 @@
+﻿@page "/Articulo/Index"
+@rendermode InteractiveServer
+@inject ArticuloService articuloService
+@inject NavigationManager navigation
+
+<PageTitle> Art&iacute;culos Index</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        @*Header*@
+        <div class="card-header text-white text-center">
+            <div class="bg-primary rounded">
+                <h1>Registro de Art&iacute;culos</h1>
+            </div>
+        </div>
+        @*Body*@
+        <div class="card-body">
+            <div class="row mb-3 align-items-end">
+                @*Filtro*@
+                <div class="col-md-2">
+                    <label for="Filtro" class="form-label">Filtrar por:</label>
+                    <select @bind="filtro" class="form-select">
+                        <option value="id">Id</option>
+                        <option value="nombre">Nombre</option>                        
+                    </select>
+                </div>
+                @*Busqueda*@
+                <div class="col-md-5">
+                    <label for="ValorFiltro" class="form-label">B&uacute;squeda:</label>
+                    <div class="input-group">
+                        <input @bind="valorFiltro" class="form-control" placeholder="Buscar" />
+                        <button @onclick="Buscar" class="btn btn-outline-info"><Icon Name="IconName.Search"></Icon></button>
+                    </div>
+                </div>
+                @*Restablecer Tabla*@
+                <div class="col-md-2">
+                    <button class="btn btn-outline-dark" @onclick="OnInitializedAsync">Restablecer</button>
+                </div>
+                @*Crear*@
+                <div class="col-md-3 text-end">
+                    <button class="btn btn-success" @onclick="Crear"><Icon Name="IconName.Floppy"></Icon>Nuevo</button>
+                </div>
+            </div>
+            @*Tabla*@
+            <table class="table table-bordered">
+                <thead class="text-center">
+                    <tr>
+                        <th>Art&iacute;culoId</th>
+                        <th>Descripci&oacute;n</th>
+                        <th>Costo</th>
+                        <th>% de Ganancia</th>
+                        <th>Precio</th>
+                        <th>Detalles</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var articulo in Articulo)
+                    {
+                        <tr class="text-center">
+                            <td>@articulo.ArticuloId</td>
+                            <td>@articulo.Descripcion</td>
+                            <td>@articulo.Costo.ToString("N2")</td>
+                            <td>@articulo.Ganancia %</td>
+                            <td>@articulo.Precio.ToString("N2")</td>                                                       
+                            <td><button class="btn btn-outline-info" @onclick="()=>Detalles(articulo.ArticuloId)"><Icon Name="IconName.Eye"></Icon></button></td>
+                            <td><button class="btn btn-outline-warning" @onclick="()=>Editar(articulo.ArticuloId)"><Icon Name="IconName.Pencil"></Icon></button></td>
+                            <td><button class="btn btn-outline-danger" @onclick="()=>Eliminar(articulo.ArticuloId)"><Icon Name="IconName.Trash"></Icon></button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @*Footer*@
+        <div class="card-footer">
+            <p>Total de Art&iacute;culos: @Articulo.Count()</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<Articulos> Articulo = new List<Articulos>();
+    private string filtro = "";
+    private string valorFiltro = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Articulo = await articuloService.Listar(a => true);
+        filtro = "";
+        valorFiltro = "";
+    }
+
+    private async Task Buscar()
+    {
+        if (valorFiltro.Trim() != "")
+        {
+            if (filtro == "id" && int.TryParse(valorFiltro, out int Id))
+            {
+                Articulo = await articuloService.Listar(a => a.ArticuloId == Id);
+            }
+            else if (filtro == "descripcion")
+            {
+                Articulo = await articuloService.Listar(a => a.Descripcion.ToLower().Contains(valorFiltro.ToLower()));
+            }
+        }
+        else
+        {
+            Articulo = await articuloService.Listar(a => true);
+        }
+    }
+
+    public void Crear()
+    {
+        navigation.NavigateTo("/Articulo/Crear");
+    }
+
+    public void Detalles(int id)
+    {
+        navigation.NavigateTo($"/Articulo/Detalles/articuloid={id}");
+    }
+
+    public void Editar(int id)
+    {
+        navigation.NavigateTo($"/Articulo/Editar/articuloid={id}");
+    }
+
+    public void Eliminar(int id)
+    {
+        navigation.NavigateTo($"/Articulo/Eliminar/articuloid={id}");
+    }
+}
