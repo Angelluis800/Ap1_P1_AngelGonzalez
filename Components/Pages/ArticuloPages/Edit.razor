@@ -1,0 +1,111 @@
+﻿@page "/Articulo/Editar/articuloid={idArticulo:int}"
+@rendermode InteractiveServer
+@inject ArticuloService articuloService
+@inject NavigationManager navigation
+
+<PageTitle>Modificar Art&iacute;culo</PageTitle>
+<EditForm Model="Articulo" OnValidSubmit="Editar">
+    <Toasts class="p-3" AutoHide="true" Delay="4000" Placement="ToastsPlacement.TopRight" />
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            @*Header*@
+            <div class="card-header text-white text-center">
+                <div class="bg-primary rounded">
+                    <h1>Modificar Art&iacute;culo</h1>
+                </div>
+            </div>
+            @*Body*@
+            <div class="card-body">
+                <div class="col-1">
+                    @*Id*@
+                    <label class="form-label" for="Id">Id</label>
+                    <InputNumber id="Id" class="form-control" readonly @bind-Value="Articulo.ArticuloId"></InputNumber>
+                </div>
+                <div class="row">
+                    @*Descripcion*@
+                    <div class="col-3">
+                        <label class="form-label" for="Nombres">Nombre</label>
+                        <InputText id="Nombres" class="form-control" @bind-Value="Articulo.Descripcion" placeholder="Ej: Coca Cola"></InputText>
+                        <ValidationMessage For="@(()=>Articulo.Descripcion)"></ValidationMessage>
+                    </div>
+                    @*Costo*@
+                    <div class="col-3">
+                        <label class="form-label" for="costo">Costo</label>
+                        <InputNumber id="costo" class="form-control" @bind-Value="Articulo.Costo"></InputNumber>
+                        <ValidationMessage For="@(()=>Articulo.Costo)"></ValidationMessage>
+                    </div>
+                    @*Ganancia*@
+                    <div class="col-3">
+                        <label class="form-label" for="ganancia">Ganancia</label>
+                        <InputNumber id="ganancia" class="form-control" @bind-Value="Articulo.Ganancia"></InputNumber>
+                        <ValidationMessage For="@(()=>Articulo.Ganancia)"></ValidationMessage>
+                    </div>
+                    @*Precio*@
+                    <div class="col-3">
+                        <label class="form-label" for="precio">Precio</label>
+                        <InputNumber id="precio" class="form-control" @bind-Value="Articulo.Precio"></InputNumber>
+                        <ValidationMessage For="@(()=>Articulo.Precio)"></ValidationMessage>
+                    </div>
+
+                </div>
+            </div>
+            @*Footer*@
+            <div class="card-footer">
+                <button class="btn btn-outline-success" type="submit"><Icon Name="IconName.Floppy"></Icon> Guardar </button>
+                <button class="btn btn-outline-secondary" @onclick="Volver"><Icon Name="IconName.Arrow90DegLeft"></Icon>Volver</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+
+    public Articulos? Articulo { get; set; } = new Articulos();
+    [Parameter]
+    public int idArticulo { get; set; }
+    List<ToastMessage> Mensajes = new List<ToastMessage>();
+
+    public async Task Editar()
+    {
+        if (!await Validar())
+        {
+            var nuevo = await articuloService.Guardar(Articulo);
+            if (nuevo)
+            {
+                MostrarMensaje(ToastType.Success, $"El Artículo {Articulo.Descripcion} ha Sido Editado Correctamente");
+                Articulo = new Articulos();
+            }
+            else
+            {
+                MostrarMensaje(ToastType.Danger, "El Artículo no se ha podido Editar Correctamente");
+            }
+        }
+        else
+        {
+            MostrarMensaje(ToastType.Warning, "Ya Existe un Artículo con este Nombre");
+        }
+    }
+
+    public async Task<bool> Validar()
+    {
+        var existe = await articuloService.Existe(Articulo.ArticuloId, Articulo.Descripcion);
+        return existe;
+    }
+
+    public void Volver() => navigation.NavigateTo("/Articulo/Index");
+
+    private void MostrarMensaje(ToastType toastType, string message)
+    {
+        Mensajes.Add(CrearMensaje(toastType, message));
+    }
+
+    private ToastMessage CrearMensaje(ToastType toastType, string message)
+    => new ToastMessage
+        {
+            Type = toastType,
+            Title = "Notificación",
+            HelpText = $"{DateTime.Now}",
+            Message = message,
+        };
+}
