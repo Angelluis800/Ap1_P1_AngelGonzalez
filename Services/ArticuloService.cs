@@ -66,7 +66,7 @@ public class ArticuloService
             .Where(criterio)
             .ToListAsync();
     }
-    public decimal CalcularPrecioVenta(decimal costo, decimal ganancia)
+    public async Task<decimal> CalcularPrecioVenta(decimal costo, decimal ganancia)
     {
         var precio = costo * ganancia / 100;
         return costo + precio;
