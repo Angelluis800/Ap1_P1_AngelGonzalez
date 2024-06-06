@@ -66,6 +66,11 @@
     public int idArticulo { get; set; }
     List<ToastMessage> Mensajes = new List<ToastMessage>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        Articulo = await articuloService.BuscarId(idArticulo);
+    }
+
     public async Task Editar()
     {
         if (!await Validar())
