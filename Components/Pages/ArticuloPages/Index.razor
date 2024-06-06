@@ -64,7 +64,7 @@
                             <td>@articulo.Descripcion</td>
                             <td>@articulo.Costo.ToString("N2")</td>
                             <td>@articulo.Ganancia %</td>
-                            <td>@articulo.Precio.ToString("N2")</td>                                                       
+                            <td>@articulo.Precio</td>                                                       
                             <td><button class="btn btn-outline-info" @onclick="()=>Detalles(articulo.ArticuloId)"><Icon Name="IconName.Eye"></Icon></button></td>
                             <td><button class="btn btn-outline-warning" @onclick="()=>Editar(articulo.ArticuloId)"><Icon Name="IconName.Pencil"></Icon></button></td>
                             <td><button class="btn btn-outline-danger" @onclick="()=>Eliminar(articulo.ArticuloId)"><Icon Name="IconName.Trash"></Icon></button></td>
@@ -88,6 +88,10 @@
     protected override async Task OnInitializedAsync()
     {
         Articulo = await articuloService.Listar(a => true);
+        foreach (var articulo in Articulo)
+        {
+            articulo.Precio = await articuloService.CalcularPrecioVenta(articulo.Costo, articulo.Ganancia);
+        }
         filtro = "";
         valorFiltro = "";
     }
