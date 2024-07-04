@@ -32,19 +32,19 @@
                     @*Costo*@
                     <div class="col-3">
                         <label class="form-label" for="costo">Costo</label>
-                        <InputNumber id="costo" class="form-control" @bind-Value="Articulo.Costo"></InputNumber>
+                        <input type="number" id="costo" class="form-control" @bind="aux_costo" @bind:event="oninput"></input>
                         <ValidationMessage For="@(()=>Articulo.Costo)"></ValidationMessage>
                     </div>
                     @*Ganancia*@
                     <div class="col-3">
                         <label class="form-label" for="ganancia">Ganancia</label>
-                        <InputNumber id="ganancia" class="form-control" @bind-Value="Articulo.Ganancia"></InputNumber>
+                        <input type="number" id="costo" class="form-control" @bind="aux_ganancia" @bind:event="oninput"></input>
                         <ValidationMessage For="@(()=>Articulo.Ganancia)"></ValidationMessage>
                     </div>
                     @*Precio*@
                     <div class="col-3">
                         <label class="form-label" for="precio">Precio</label>
-                        <InputNumber id="precio" class="form-control" @bind-Value="Articulo.Precio"></InputNumber>
+                        <label id="precio" class="form-control" readonly>@Articulo.Precio.ToString("N2")</label>
                         <ValidationMessage For="@(()=>Articulo.Precio)"></ValidationMessage>
                     </div>
 
@@ -65,6 +65,42 @@
     [Parameter]
     public int idArticulo { get; set; }
     List<ToastMessage> Mensajes = new List<ToastMessage>();
+
+    public decimal aux_costo
+    {
+        get => Articulo.Costo;
+        set
+        {
+            if (Articulo.Costo != value)
+            {
+                Articulo.Costo = value;
+                CalcularPrecioVenta();
+            }
+        }
+    }
+
+    public decimal aux_ganancia
+    {
+        get => Articulo.Ganancia;
+        set
+        {
+            if (Articulo.Ganancia != value)
+            {
+                Articulo.Ganancia = value;
+                CalcularPrecioVenta();
+            }
+        }
+    }
+
+    public void CalcularPrecioVenta()
+    {
+        Articulo.Precio = Articulo.Costo + (Articulo.Costo * (Articulo.Ganancia / 100));
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Articulo = await articuloService.BuscarId(idArticulo);       
+    }
 
     public async Task Editar()
     {
